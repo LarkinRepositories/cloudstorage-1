@@ -15,6 +15,7 @@
     <modules>
         <module>cloud-storage-server</module>
         <module>cloud-storage-client</module>
+        <module>lesson-examples</module>
     </modules>
     <dependencies>
         <dependency>
@@ -22,6 +23,12 @@
             <artifactId>lombok</artifactId>
             <version>1.18.8</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.netty/netty-all -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.43.Final</version>
         </dependency>
     </dependencies>
 </project>
