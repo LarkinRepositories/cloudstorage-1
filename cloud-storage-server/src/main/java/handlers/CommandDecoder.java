@@ -3,6 +3,7 @@ package handlers;
 import commons.commands.Command;
 import commons.commands.CommandFactory;
 import commons.commands.CommandTypes;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@ChannelHandler.Sharable
 public class CommandDecoder extends MessageToMessageDecoder<String> {
 
     private final Map<String, Command> commandsMap = new HashMap<>();

@@ -23,10 +23,10 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
 
     protected void initChannel(SocketChannel socketChannel) throws Exception {
         socketChannel.pipeline().addLast(new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
+        socketChannel.pipeline().addLast(CHUNKED_WRITE_HANDLER);
         socketChannel.pipeline().addLast(STRING_DECODER);
         socketChannel.pipeline().addLast(STRING_ENCODER);
         socketChannel.pipeline().addLast(COMMAND_DECODER);
-        socketChannel.pipeline().addLast(CHUNKED_WRITE_HANDLER);
         socketChannel.pipeline().addLast(FILE_SERVER_HANDLER);
 
     }

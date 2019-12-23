@@ -1,15 +1,12 @@
 package handlers;
 
 import commons.commands.*;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import commons.filetransfer.FileUtils;
+import io.netty.channel.*;
 import io.netty.handler.stream.ChunkedFile;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -23,6 +20,8 @@ public class FileServerHandler extends SimpleChannelInboundHandler<Command> {
 
     private final Map<Class<? extends Command>, CommandHandler> commandHandlerMap = new HashMap<>();
     private final CommandFactory commandFactory = new CommandFactory();
+
+
 
     public FileServerHandler() {
         initialize();
@@ -79,56 +78,11 @@ public class FileServerHandler extends SimpleChannelInboundHandler<Command> {
 
         @Override
         public void handle(ChannelHandlerContext ctx, UploadCommand command) throws Exception {
-            copy(command);
+            FileUtils.copy(command);
+            ctx.writeAndFlush("UPLOAD COMPLETED, FILE: " + FileUtils.getFileName(command) + " UPLOADED\r\n");
+
         }
-
-        private void copy(UploadCommand command) throws IOException {
-            if (StringUtils.isEmpty(command.getFilePath())) {
-                throw new IllegalArgumentException("filePath required");
-            }
-            final String fileName = getFileName(command);
-            try (FileChannel from = (FileChannel.open(Paths.get(command.getFilePath()), StandardOpenOption.READ));
-                 FileChannel to = (FileChannel.open(Paths.get("c:\\1\\uploads\\" + fileName), StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE))) {
-                transfer(from, to, 0l, from.size());
-            }
-        }
-
-        private void transfer(final FileChannel from, FileChannel to, long position, long size) throws IOException {
-            assert !Objects.isNull(from) && Objects.isNull(to);
-            while (position < size) {
-                position += from.transferTo(position, 32768, to);
-            }
-        }
-
-        private String getFileName(UploadCommand command) {
-            assert StringUtils.isNotEmpty(command.getFilePath());
-            final File file = new File(command.getFilePath());
-            if (file.isFile()) {
-                return file.getName();
-            } else {
-                throw new RuntimeException("file is invalid");
-            }
-        }
-
-
-//            RandomAccessFile raf = null;
-//            long length = -1;
-//            try {
-//                raf = new RandomAccessFile(command.getFilePath(), "r");
-//                length = raf.length();
-//            } catch (Exception e) {
-//                ctx.writeAndFlush("Error:" +e.getClass() +"\r\n");
-//                return;
-//            } finally {
-//                if (length < 0 && raf != null) {
-//                    raf.close();
-//                }
-//            }
-//            ctx.writeAndFlush("OK: " + raf.length() + "\r\n");
-//            ctx.writeAndFlush(new ChunkedFile(raf));
-//            ctx.writeAndFlush("\r\n");
     }
-
 
 
     private class DownloadHandler implements CommandHandler<DownloadCommand> {
